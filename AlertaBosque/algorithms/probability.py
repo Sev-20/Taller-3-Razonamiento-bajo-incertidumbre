@@ -11,10 +11,24 @@ def normalize(weights: dict) -> dict:
     Tips:
     - Conserve las claves y su orden; no modifique weights.
     - Rechace pesos negativos, no finitos, diccionarios vacíos y suma cero.
-    """
-    # TODO: Add your code here
-    raise NotImplementedError("Complete este bloque TODO")
-    # FIN DEL BLOQUE DEL ESTUDIANTE
+    """    
+    if not weights: # un diccionario vacío cuenta como falso en Python, así que esto atrapa el caso de entrada vacía.
+        raise ValueError("El diccionario de pesos no puede estar vacío")
+    
+    for clave, peso in weights.items():
+        if not math.isfinite(peso): # Valida que el peso sea finito, sino error 
+            raise ValueError(f"Peso no finito para {clave}: {peso}")
+        if peso < 0: # Valida que el peso no sea negativo, sino error
+            raise ValueError(f"Peso negativo para {clave}: {peso}")
+        
+    total = sum(weights.values()) # Calcula la suma de los pesos
+    
+    if total == 0: # Si la suma es cero da error 
+        raise ValueError("La suma de los pesos es cero, no se puede normalizar")
+    
+    return {clave: peso / total for clave, peso in weights.items()} # retorna un nuevo diccionario con las probabilidades normalizadas
+
+    
 
 
 def expected_utility(distribution: dict, utilities: dict) -> float:
@@ -37,9 +51,11 @@ def expected_utility(distribution: dict, utilities: dict) -> float:
         raise ValueError("La distribución debe sumar uno")
     if any(not math.isfinite(u) for u in utilities.values()):
         raise ValueError("Utilidades no finitas")
-    # TODO: Add your code here
-    raise NotImplementedError("Complete este bloque TODO")
-    # FIN DEL BLOQUE DEL ESTUDIANTE
+    
+    total = 0.0
+    for resultado, prob in distribution.items():
+        total += prob * utilities[resultado] # Calcula la utilidad esperada sumando P(s) * U(s) para cada resultado
+    return total # Retorna la utilidad esperada
 
 
 def best_action(distribution: dict, actions: dict) -> tuple[str, dict]:
@@ -56,6 +72,16 @@ def best_action(distribution: dict, actions: dict) -> tuple[str, dict]:
     # Validación de las acciones; no modificar.
     if not actions:
         raise ValueError("Se requiere al menos una acción")
-    # TODO: Add your code here
-    raise NotImplementedError("Complete este bloque TODO")
-    # FIN DEL BLOQUE DEL ESTUDIANTE
+    
+    utilidades_esperadas = {}
+    for nombre,tabla in actions.items():
+        utilidades_esperadas[nombre] = expected_utility(distribution, tabla) # Calcula la utilidad esperada para cada acción usando expected_utility
+        
+    mejor = None
+    mejor_valor = float('-inf')
+    for nombre, eu in utilidades_esperadas.items():
+        if mejor is None or eu > mejor_valor: # Encuentra la acción con la mayor utilidad esperada
+            mejor = nombre
+            mejor_valor = eu
+    
+    return mejor, utilidades_esperadas # Retorna la mejor acción y el diccionario de utilidades esperadas
