@@ -24,6 +24,28 @@ def enumeration_ask(network, query: str, evidence: dict) -> dict:
     # Valida nombres de variables y dominio de la evidencia.
     network.validate_query(query, evidence)
 
-    # TODO: Add your code here
-    raise NotImplementedError("Complete este bloque TODO")
-    # FIN DEL BLOQUE DEL ESTUDIANTE
+    ocultas = []
+    for variable in network.variables:
+      if variable != query and variable not in evidence:
+        ocultas.append(variable)
+        pesos = {0: 0.0, 1: 0.0}
+        cantidad = 2 ** len(ocultas)
+        for valor in (0, 1):
+          posible = True
+          if query in evidence and evidence[query] != valor:
+            posible = False
+            if posible:
+              for numero in range(cantidad):
+                caso = {}
+                for nombre in evidence:
+                  caso[nombre] = evidence[nombre]
+                  caso[query] = valor
+                  for i in range(len(ocultas)):
+                    caso[ocultas[i]] = (numero // 2 ** i) % 2
+                    producto = 1.0
+                    for variable in network.variables:
+                      producto = producto * network.probability(variable, caso[variable], caso)
+                      pesos[valor] += producto
+        if pesos[0] + pesos[1] == 0:
+            raise ValueError("Evidencia imposible")
+        return normalize(pesos)
