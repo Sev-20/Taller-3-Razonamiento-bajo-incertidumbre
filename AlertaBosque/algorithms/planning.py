@@ -24,9 +24,11 @@ def action_value(mdp, state, action, values):
     - No vuelva a sumar la recompensa del terminal en su valor:
       values[terminal] es cero.
     """
-    # TODO: Add your code here
-    raise NotImplementedError("Complete este bloque TODO")
-    # FIN DEL BLOQUE DEL ESTUDIANTE
+    total = 0.0
+    for sucesor, prob in mdp.transitions(state, action):
+        recompensa = mdp.reward(state, action, sucesor)  # incluye recompensa terminal al entrar
+        total += prob * (recompensa + mdp.discount * values[sucesor])
+    return total
 
 
 def value_iteration(mdp, tolerance=1e-8, max_iterations=1000):
@@ -53,9 +55,16 @@ def value_iteration(mdp, tolerance=1e-8, max_iterations=1000):
     values = dict.fromkeys(mdp.states, 0.0)
     history, deltas = [values.copy()], []
     for _ in range(max_iterations):
-        # TODO: Add your code here
-        raise NotImplementedError("Complete este bloque TODO")
-        # FIN DEL BLOQUE DEL ESTUDIANTE
+        nuevos = {}
+        for estado in mdp.states:
+            acciones = mdp.actions(estado)
+            if not acciones:  # terminal: su valor se mantiene en cero
+                nuevos[estado] = 0.0
+            else:
+                nuevos[estado] = max(action_value(mdp, estado, a, values) for a in acciones)
+        delta = max(abs(nuevos[s] - values[s]) for s in mdp.states)
+        values = nuevos
+        converged = delta < tolerance
         # Copias para la animación y empaquetado del resultado.
         history.append(values.copy())
         deltas.append(delta)
@@ -74,6 +83,12 @@ def extract_policy(mdp, values):
     - Reutilice action_value: no basta elegir el vecino de mayor valor.
     - Respete mdp.actions: desempate N, E, S, W conservando el primero.
     """
-    # TODO: Add your code here
-    raise NotImplementedError("Complete este bloque TODO")
-    # FIN DEL BLOQUE DEL ESTUDIANTE
+    politica = {}
+    for estado in mdp.states:
+        mejor, mejor_q = None, -math.inf 
+        for accion in mdp.actions(estado):
+            q = action_value(mdp, estado, accion, values)
+            if q > mejor_q: 
+                mejor, mejor_q = accion, q
+        politica[estado] = mejor
+    return politica
