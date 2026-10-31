@@ -85,10 +85,10 @@ def extract_policy(mdp, values):
     """
     politica = {}
     for estado in mdp.states:
-        mejor, mejor_q = None, -math.inf  # terminales no tienen acciones -> None
+        mejor, mejor_q = None, -math.inf 
         for accion in mdp.actions(estado):
             q = action_value(mdp, estado, accion, values)
-            if q > mejor_q:  # estricto: en empate se conserva la primera (N, E, S, W)
+            if q > mejor_q: 
                 mejor, mejor_q = accion, q
         politica[estado] = mejor
     return politica
