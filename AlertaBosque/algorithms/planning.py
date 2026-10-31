@@ -25,12 +25,10 @@ def action_value(mdp, state, action, values):
       values[terminal] es cero.
     """
     total = 0.0
-    # Las transiciones ya incluyen rebotes (sucesor = state) y el desvío por viento.
     for sucesor, prob in mdp.transitions(state, action):
         recompensa = mdp.reward(state, action, sucesor)  # incluye recompensa terminal al entrar
         total += prob * (recompensa + mdp.discount * values[sucesor])
     return total
-    # FIN DEL BLOQUE DEL ESTUDIANTE
 
 
 def value_iteration(mdp, tolerance=1e-8, max_iterations=1000):
@@ -57,7 +55,6 @@ def value_iteration(mdp, tolerance=1e-8, max_iterations=1000):
     values = dict.fromkeys(mdp.states, 0.0)
     history, deltas = [values.copy()], []
     for _ in range(max_iterations):
-        # Barrido sincrónico: todo se calcula con el diccionario anterior.
         nuevos = {}
         for estado in mdp.states:
             acciones = mdp.actions(estado)
@@ -68,7 +65,6 @@ def value_iteration(mdp, tolerance=1e-8, max_iterations=1000):
         delta = max(abs(nuevos[s] - values[s]) for s in mdp.states)
         values = nuevos
         converged = delta < tolerance
-        # FIN DEL BLOQUE DEL ESTUDIANTE
         # Copias para la animación y empaquetado del resultado.
         history.append(values.copy())
         deltas.append(delta)
@@ -96,4 +92,3 @@ def extract_policy(mdp, values):
                 mejor, mejor_q = accion, q
         politica[estado] = mejor
     return politica
-    # FIN DEL BLOQUE DEL ESTUDIANTE
